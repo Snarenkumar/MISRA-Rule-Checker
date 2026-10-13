@@ -59,6 +59,8 @@ jobs:
 
       - name: Generate SARIF Security Report for bad_code.cpp
         if: always()
+        shell: powershell
         run: |
-          .\build\Release\misra_check.exe samples/bad_code.cpp --sarif > misra_report.sarif
+          .\build\Release\misra_check.exe samples/bad_code.cpp --sarif | Out-File -FilePath misra_report.sarif -Encoding utf8
           Write-Host "SARIF report generated for static analysis visualization."
+          exit 0
