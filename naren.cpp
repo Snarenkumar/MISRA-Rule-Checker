@@ -1,6 +1,5 @@
 #include <iostream>
 #include <climits>
-using namespace std;
 
 void val(int num)
 {
@@ -17,7 +16,7 @@ void val(int num)
     val(num / 10);
 
     int digit = num % 10;
-    cout << "digit is this :  " << digit << endl;
+    
 }
 
 int main()
