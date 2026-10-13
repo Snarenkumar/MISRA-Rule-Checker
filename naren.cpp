@@ -36,7 +36,7 @@ int main()
 {
     char arr[20] = "my name is naren";
 
-    
+    std::cout << "it works proerply ";
 
     return 0;
 }
