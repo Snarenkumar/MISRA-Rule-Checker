@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 void replacewithx(char arr[], int n)
 {
     int i = 0;
