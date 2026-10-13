@@ -1,27 +1,42 @@
 #include <iostream>
-#include <climits>
 
-void val(int num)
+void replacewithx(char arr[], int n)
 {
-    // Base case
-    // if (num> 0){
-    //     return;
-    // }
+    int i = 0;
 
-    if (num == 0)
+    while (arr[i] != '\0')
     {
-        return;
+        //toupper from lower
+        if (arr[i] >= 'a' && arr[i] <= 'z'  ){
+            arr[i]-=32;
+        }
+        i++;
     }
-
-    val(num / 10);
-
-    int digit = num % 10;
-    
 }
+
+
+void replacewithx(char arr[], int n)
+{
+    int i = 0;
+
+    while (arr[i] != '\0')
+    {
+        //tolower from upper 
+        if (arr[i] >= 'a' && arr[i] <= 'z'  ){
+            arr[i]+=32;
+        }
+        i++;
+    }
+}
+
+
+
 
 int main()
 {
-    int num = 13432;
+    char arr[20] = "my name is naren";
 
-    val(num);
+    
+
+    return 0;
 }
