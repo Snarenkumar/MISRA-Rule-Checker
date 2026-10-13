@@ -39,9 +39,9 @@ jobs:
               $violationsCount++
           }
 
-          # Check all other production .cpp files outside test/sample fixtures
+          # Check all target .cpp files (excluding analyzer src, tests, build, and bad_code sample)
           Get-ChildItem -Recurse -Filter *.cpp | ForEach-Object {
-              if ($_.FullName -notmatch "bad_code\.cpp" -and $_.FullName -notmatch "tests\\" -and $_.FullName -notmatch "build\\") {
+              if ($_.FullName -notmatch "bad_code\.cpp" -and $_.FullName -notmatch "tests[\\/]" -and $_.FullName -notmatch "build[\\/]" -and $_.FullName -notmatch "src[\\/]") {
                   Write-Host "Scanning $($_.FullName)..."
                   & $exePath $_.FullName
                   if ($LASTEXITCODE -ne 0) {
