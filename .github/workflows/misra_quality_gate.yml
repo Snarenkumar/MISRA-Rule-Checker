@@ -1,0 +1,64 @@
+name: MISRA Production Quality Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-gate:
+    name: Evaluate MISRA/AUTOSAR Rules
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -S .
+
+      - name: Build static analyzer and unit tests
+        run: cmake --build build --config Release
+
+      - name: Run Test Suite (GoogleTest)
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Run Quality Gate on Production Code
+        shell: powershell
+        run: |
+          Write-Host "Evaluating production files against MISRA/AUTOSAR standards..."
+          
+          $exePath = ".\build\Release\misra_check.exe"
+          $violationsCount = 0
+
+          # Check compliant production sample
+          Write-Host "Scanning samples/good_code.cpp..."
+          & $exePath "samples/good_code.cpp"
+          if ($LASTEXITCODE -ne 0) {
+              $violationsCount++
+          }
+
+          # Check all other production .cpp files outside test/sample fixtures
+          Get-ChildItem -Recurse -Filter *.cpp | ForEach-Object {
+              if ($_.FullName -notmatch "bad_code\.cpp" -and $_.FullName -notmatch "tests\\" -and $_.FullName -notmatch "build\\") {
+                  Write-Host "Scanning $($_.FullName)..."
+                  & $exePath $_.FullName
+                  if ($LASTEXITCODE -ne 0) {
+                      $violationsCount++
+                  }
+              }
+          }
+
+          if ($violationsCount -gt 0) {
+              Write-Error "❌ REJECTED: MISRA Quality Gate Failed! Found $violationsCount files with safety violations."
+              exit 1
+          } else {
+              Write-Host "✅ PASSED: All production code strictly complies with all 15 MISRA rules." -ForegroundColor Green
+          }
+
+      - name: Generate SARIF Security Report for bad_code.cpp
+        if: always()
+        run: |
+          .\build\Release\misra_check.exe samples/bad_code.cpp --sarif > misra_report.sarif
+          Write-Host "SARIF report generated for static analysis visualization."
