@@ -39,13 +39,14 @@ if ($TargetFile -ne "") {
         exit 1
     }
 } else {
-    # Scan files staged or modified in Git, excluding samples/bad_code.cpp and tests/
+    # Scan files in outgoing commits, staged in index, or modified in working tree
+    $pushedFiles = git diff origin/main..HEAD --name-only --diff-filter=ACM 2>$null
     $stagedFiles = git diff --cached --name-only --diff-filter=ACM 2>$null
     $uncommittedFiles = git diff --name-only --diff-filter=ACM 2>$null
-    $allChanged = ($stagedFiles + $uncommittedFiles) | Sort-Object -Unique
+    $allChanged = ($pushedFiles + $stagedFiles + $uncommittedFiles) | Sort-Object -Unique
 
     foreach ($f in $allChanged) {
-        if ($f -match '\.(cpp|cxx|cc)$' -and $f -notmatch 'bad_code\.cpp' -and $f -notmatch 'tests\\tests\.cpp') {
+        if ($f -match '\.(cpp|cxx|cc)$' -and $f -notmatch 'bad_code\.cpp' -and $f -notmatch 'tests[\\/]tests\.cpp') {
             if (Test-Path $f) {
                 $filesToScan += (Resolve-Path $f).Path
             }
